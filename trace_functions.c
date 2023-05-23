@@ -1,35 +1,16 @@
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
+#include "trace_functions.h"
 
-int main()
+
+int main() 
 {
-    //uint32_t trace = 0x45C3CA56;
-    char buff[2048];
- 
-    FILE* fptr;
+    uint32_t mask  = 0xFC000000;
+    uint32_t trace;
+    uint8_t opcode;
 
-    fptr = fopen("traces.txt","r");
-
-    if(!fptr)
-    {
-	    printf("file can't be read!\n");
-	    exit(-1);
-    }
-    
-    while(fgets(buff, sizeof buff,fptr) != NULL)
-    {
-    	//fscanf(fptr,"%s", buff);
-	printf("%s", buff);
-	
-    }
-    if(feof(fptr))
-    {
-    	fclose(fptr);
-    }
-    
-   /* trace = (uint32_t) strtoul(buff, NULL, 16);
- 
+    trace = (uint32_t) strtoul(buff, NULL, 16);
+        
     opcode = (trace & mask) >> 26;
     
     printf("%d\n", opcode);
@@ -89,9 +70,6 @@ int main()
         case 17:
         printf("HALT instruction!\n");
         break;
-    }*/
+    }
 
-
-    return 0;
-}
 
