@@ -1,23 +1,30 @@
 #include "MIPS.h"
 
-char *fetch(char buff[1024],FILE* fptr)
+extern int r[31];
+
+int fetch(unsigned int *getInstr,FILE* fptr)
 {
-	return fgets(buff, sizeof buff,fptr);
+	return fscanf(fptr, "%x", getInstr);
     
 }
 
-void execute(int instruction)
+void decode(int instruction, instr_contents *output)
 {
 	char opcode = 0;
 
-	opcode = (instruction & 0xFC000000) >> 26;
+	output->opcode = (instruction & OPCODE_MASK) >> 26;
 
-	switch(opcode)
+	printf("instr = %d opcode = %d\r\n",instruction,output->opcode);
+	switch(output->opcode)
 	{
 		case 0:
-		printf("ADD instruction!\r\n");
+			printf("ADD instruction!\r\n");
+			output->rs = (instruction & RS_MASK) >> 21;
+			output->rt = (instruction & RT_MASK) >> 16;
+			output->rd = (instruction & R_RD_MASK) >> 11;
+			printf("RS = %d, RT =%d, RD = %d \r\n",output->rs,output->rt,output->rd);
 		break;
-		/*
+
 		case 1:
 		printf("ADDI instruction!\n");
 		break;
@@ -69,6 +76,23 @@ void execute(int instruction)
 		case 17:
 		printf("HALT instruction!\n");
 		break;
-		*/
 	}
 }
+
+
+void execute(instr_contents *input)
+{
+	
+	switch(input->opcode)
+	{
+		case 0:
+			printf("ADD instruction!\r\n");
+			r[input->rd] = r[input->rs] + r[input->rt];
+			for(int i=0;i<32;i++)
+			{
+				printf("R%d=%d",i,r[i]);				
+
+			}
+		break;
+	}
+}		

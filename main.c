@@ -2,21 +2,28 @@
 #include <string.h>
 
 char buffer[1024];
+int r[32];
 
 void main()
 {
+    r[2] = 3;
+    r[3] = 1;
     FILE* memimage;
-    int instr;
+    unsigned int instr;
+    instr_contents pipe1_op;
+
     memimage = fopen("traces.txt","r");
 
     if(memimage)
     {
-	while (fscanf(memimage, "%d", &instr) == 1) {
+	while (fetch(&instr,memimage) == 1) 
+    {
 	
-            printf("%d\n", instr);		
+        printf("%x\n", instr);		
 	    //printf("%x\r\n",hexValue);
-	    execute(instr);
-        }
+	    decode(instr,&pipe1_op);
+        execute(&pipe1_op);
+    }
 
     }
     else
