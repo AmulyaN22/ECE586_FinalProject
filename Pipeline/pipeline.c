@@ -21,7 +21,8 @@ void createPipeline(Stage **head, Stage **tail)
 		Stage *stagePtr = (Stage*) malloc(sizeof(Stage));
 
 #ifdef DEBUG		
-		printf("Stage Address: 0x%x, Data Address[%d]:0x%x\n\r", (unsigned int)stagePtr, i, &data[i]);
+		printf("Stage Address: 0x%lx, Data Address[%d]:0x%lx\n\r", 
+					(unsigned long int)stagePtr, i, (unsigned long int)&data[i]);
 #endif		
 		stagePtr->id = IF + i;
 		stagePtr->next = NULL;
@@ -46,7 +47,7 @@ void processStage(Stage *stage)
 {
 	
 #ifdef DEBUG		
-				printf("currIndex:%d\n\r", currIndex);
+	printf("currIndex:%d\n\r", currIndex);
 #endif
 	
 	switch(stage->id)
@@ -58,8 +59,11 @@ void processStage(Stage *stage)
 					printf("*********************************************\n\r");
 					printf("Stage IF\n\r");
 					printf("*********************************************\n\r");				
-					printf("data array Index: %d , Address:0x%x\n\r", (currIndex % NUM_STAGES) - IF, &data[(currIndex % NUM_STAGES) - IF]);
+					printf("data array Index: %d , Address:0x%lx\n\r", 
+								(currIndex % NUM_STAGES) - IF, 
+									(unsigned long int)&data[(currIndex % NUM_STAGES) - IF]);
 #endif
+
 					data[(currIndex % NUM_STAGES) - IF].stageID = IF;
 					stage->data = &data[(currIndex % NUM_STAGES) - IF];
 					stage->func = fetch;
@@ -75,8 +79,11 @@ void processStage(Stage *stage)
 					printf("*********************************************\n\r");
 					printf("Stage ID\n\r");
 					printf("*********************************************\n\r");
-					printf("data array Index: %d , Address:0x%x\n\r", (currIndex % NUM_STAGES) - ID, &data[(currIndex % NUM_STAGES) - ID]);
+					printf("data array Index: %d , Address:0x%lx\n\r", 
+								(currIndex % NUM_STAGES) - ID, 
+									(unsigned long int)&data[(currIndex % NUM_STAGES) - ID]);
 #endif
+
 					data[(currIndex % NUM_STAGES) - ID].stageID = ID;
 					stage->data = &data[(currIndex % NUM_STAGES) - ID];
 					stage->func = decode;
@@ -92,8 +99,11 @@ void processStage(Stage *stage)
 					printf("*********************************************\n\r");
 					printf("Stage: EXE\n\r");
 					printf("*********************************************\n\r");
-					printf("data Index: %d \n\r", (currIndex % NUM_STAGES) - EXE);
+					printf("data array Index: %d , Address:0x%lx\n\r", 
+								(currIndex % NUM_STAGES) - EXE, 
+									(unsigned long int)&data[(currIndex % NUM_STAGES) - EXE]);
 #endif
+
 					data[(currIndex % NUM_STAGES) - EXE].stageID = EXE;
 					stage->data = &data[(currIndex % NUM_STAGES) - EXE];
 					stage->func = execute;
@@ -109,8 +119,11 @@ void processStage(Stage *stage)
 					printf("*********************************************\n\r");
 					printf("Stage: MEM\n\r"); 
 					printf("*********************************************\n\r");
-					printf("data Index: %d \n\r", (currIndex % NUM_STAGES) - MEM);
+					printf("data array Index: %d , Address:0x%lx\n\r", 
+								(currIndex % NUM_STAGES) - MEM, 
+									(unsigned long int)&data[(currIndex % NUM_STAGES) - MEM]);
 #endif
+
 					data[(currIndex % NUM_STAGES) - MEM].stageID = MEM;
 					stage->data = &data[(currIndex % NUM_STAGES) - MEM];
 					stage->func(stage);
@@ -125,15 +138,17 @@ void processStage(Stage *stage)
 					printf("*********************************************\n\r");
 					printf("Stage: WB\n\r");
 					printf("*********************************************\n\r");
-					printf("data Index: %d \n\r", (currIndex % NUM_STAGES) - WB);
+					printf("data array Index: %d , Address:0x%lx\n\r", 
+								(currIndex % NUM_STAGES) - WB, 
+									(unsigned long int)&data[(currIndex % NUM_STAGES) - WB]);
 #endif			
+
 					data[(currIndex % NUM_STAGES) - WB].stageID = WB;
 					stage->data = &data[(currIndex % NUM_STAGES) - WB];
 					stage->func(stage);
 				}
 				
 				break;
-		
 	}
 	
 	printf("*************************************************\n\r");
@@ -158,32 +173,31 @@ void fetch(Stage* stage)
     }
 	
 	fileOpenStatus = 1;
-	
 	fscanf(fptr, "%x", &getInstr);
 	*(stage->data->Instr) = getInstr;
-	
 	stage->data->isInitialized = true;
 
 #ifdef DEBUG	
-	printf("instr = %x data address: 0x%x, Initialized:(%s)\r\n",*(stage->data->Instr), stage->data,
-						((stage->data->isInitialized) ? "true":"false"));
+	printf("instr = %x data address: 0x%lx, Initialized:(%s)\r\n",*(stage->data->Instr), 
+				(unsigned long int)stage->data,	((stage->data->isInitialized) ? "true":"false"));
 #endif
-
 }
 
 void decode(Stage* stage)
 {
-	if(stage->data->isInitialized == true)
+	if (stage->data->isInitialized)
 	{
 		printf("Decode Instruction\n\r");
 		
 		stage->data->instrContents->opcode = (*(stage->data->Instr) & OPCODE_MASK) >> 26;
 
 #ifdef DEBUG		
-		printf("instr = %x data address: 0x%x, Initialized:(%s)\r\n",*(stage->data->Instr), stage->data,
-							((stage->data->isInitialized) ? "true":"false"));
+		printf("instr = %x data address: 0x%lx, Initialized:(%s)\r\n",
+					*(stage->data->Instr), (unsigned long int)stage->data,
+						((stage->data->isInitialized) ? "true":"false"));
 
-		printf("instr = 0x%x opcode = 0x%x\r\n",*(stage->data->Instr), (*(stage->data->Instr) & OPCODE_MASK) >> 26);
+		printf("instr = 0x%x opcode = 0x%x\r\n",*(stage->data->Instr), 
+					(*(stage->data->Instr) & OPCODE_MASK) >> 26);
 #endif
 		
 		switch((stage->data->instrContents)->opcode)
@@ -193,16 +207,18 @@ void decode(Stage* stage)
 				(stage->data->instrContents)->rs = &reg.r[0] + ((*(stage->data->Instr) & RS_MASK) >> 21);
 				(stage->data->instrContents)->rt = &reg.r[0] + ((*(stage->data->Instr) & RT_MASK) >> 16);
 				(stage->data->instrContents)->rd = &reg.r[0] + ((*(stage->data->Instr) & R_RD_MASK) >> 11);
-				printf("RS = %d, RT =%d, RD = %d \r\n",*(stage->data->instrContents->rs),*(stage->data->instrContents->rt),*(stage->data->instrContents->rd));
+				printf("RS = %d, RT =%d, RD = %d \r\n",*(stage->data->instrContents->rs),
+						*(stage->data->instrContents->rt),*(stage->data->instrContents->rd));
 			break;
 
 			case 1:
-			printf("ADDI Instr!\n");
+				printf("ADDI Instr!\n");
 				(stage->data->instrContents)->rs = &reg.r[0] + ((*(stage->data->Instr) & RS_MASK) >> 21);
 				(stage->data->instrContents)->rt = &reg.r[0] + ((*(stage->data->Instr) & RT_MASK) >> 16);
 				(stage->data->instrContents)->rd = &reg.r[0] + ((*(stage->data->Instr) & R_RD_MASK) >> 11);
 				//printf("RS = %d, RT =%d, RD = %d \r\n",data->instrContents->rs,data->instrContents->rt,data->instrContents->rd);
 			break;
+			
 			case 2:
 			printf("SUB Instr!\n");
 			break;
@@ -261,7 +277,8 @@ void execute(Stage *stage)
 	printf("Execute Instruction\n\r");
 
 #ifdef DEBUG
-	printf("instr = %x data address: 0x%x, Initialized:(%s)\r\n",*(stage->data->Instr), stage->data,
+	printf("instr = %x data address: 0x%lx, Initialized:(%s)\r\n",
+				*(stage->data->Instr), (unsigned long int)stage->data,
 						((stage->data->isInitialized) ? "true":"false"));
 #endif
 						
@@ -284,130 +301,20 @@ void execute(Stage *stage)
 	
 void moveDataToNextStage()
 {
-	
-	
 	currIndex++;
 	
 #ifdef DEBUG
 	uint8_t i;	
+	
 	for (i = 0; i < NUM_STAGES; i++)
 	{
-		printf("data[%d] address: 0x%x, data[%d]->stageID: 0x%x, Initialized:(%s)\n\r", i, &data[i], i, data[i].stageID, 
-								(data[i].isInitialized) ? "true":"false"); 		
+		printf("data[%d] address: 0x%lx, data[%d]->stageID: 0x%x, Initialized:(%s)\n\r", 
+				i, (unsigned long int)&data[i], i, data[i].stageID, 
+					(data[i].isInitialized) ? "true":"false"); 		
 	}
 #endif
 }
-#ifdef DEBUG
 
-void allotFuncToStage(Stage **head, Stage **tail)
-{
-	Stage *temp = *head;
-	int32_t i = 0;
-	while(temp != *tail)
-	{
-		temp->id = IF + i;
-		temp->func = testFunction;
-		temp = temp->next;
-		i++;
-	}
-	
-}
-
-void testFunction()
-{
-	printf("Started executing the function\n\r");
-	
-	    //uint32_t trace = 0x45C3CA56;
-    uint32_t mask  = 0xFC000000;
-    uint32_t trace;
-    uint8_t opcode;
-    char buff[2048];
- 
-    static FILE* fptr;
-
-    if(!fileOpenStatus) fptr = fopen("traces.txt","r");
-	
-    if(!fptr)
-    {
-	    printf("file can't be read!\n");
-	    exit(-1);
-    }
-
-    fscanf(fptr,"%s", buff);
-	fileOpenStatus = 1;
-    printf("Value just read: %s\n", buff);
-    //fclose(fptr);
-
-    trace = (uint32_t) strtoul(buff, NULL, 16);
- 
-    opcode = (trace & mask) >> 26;
-    
-    printf("%d\n", opcode);
-
-    switch(opcode) {
-        case 0:
-        printf("ADD Instr!\n");
-        break;
-        case 1:
-        printf("ADDI Instr!\n");
-        break;
-        case 2:
-        printf("SUB Instr!\n");
-        break;
-        case 3:
-        printf("SUBI Instr!\n");
-        break;
-        case 4:
-        printf("MUL Instr!\n");
-        break;
-        case 5:
-        printf("MULI Instr!\n");
-        break;
-        case 6:
-        printf("OR Instr!\n");
-        break;
-        case 7:
-        printf("ORI Instr!\n");
-        break;
-        case 8:
-        printf("AND Instr!\n");
-        break;
-        case 9:
-        printf("ANDI Instr!\n");
-        break;
-        case 10:
-        printf("XOR Instr!\n");
-        break;
-        case 11:
-        printf("XORI Instr!\n");
-        break;
-        case 12:
-        printf("LDW Instr!\n");
-        break;
-        case 13:
-        printf("STW Instr!\n");
-        break;
-        case 14:
-        printf("BZ Instr!\n");
-        break;
-        case 15: 
-        printf("BEQ Instr!\n");
-        break;
-        case 16: 
-        printf("JR Instr!\n");
-        break;
-        case 17:
-        printf("HALT Instr!\n");
-        break;
-    }
-	
-}
-
-
-extern int r[31];
-
-
-#endif
 
 
 
