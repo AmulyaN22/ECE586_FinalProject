@@ -12,25 +12,29 @@
 #define   I_IMM_MASK  (0x0000FFFF)
 #define NUM_STAGES 5
 
-typedef enum pipelineStages{IF, ID, EXE, MEM, WB} pipelineStages;
+typedef enum pipelineStages{IF = 0, ID = 1, EXE = 2, MEM = 3, WB = 4} pipelineStages;
 
-typedef struct{
-
+typedef struct
+{
     uint8_t opcode;
-    uint8_t rs;
-    uint8_t rt;
-    uint8_t rd;
+    uint32_t *rs;
+    uint32_t *rt;
+    uint32_t *rd;
     uint8_t imm;
 }instr_contents;
 
-typedef struct Data{
-	int32_t x;
-	int32_t y;
+typedef struct
+{
+	uint32_t r[32];
+	uint32_t pc;
+} Reg_File;
+
+typedef struct Data
+{
+	bool isInitialized;
+	pipelineStages stageID;
 	uint32_t *Instr;
 	instr_contents *instrContents;
-	
-	FILE* fptr;
-	
 } Data;
 
 
@@ -43,13 +47,14 @@ typedef struct Stage
 	struct Stage *next;
 } Stage;
 
-extern int i[31];
 extern Data *data;
+extern uint32_t currIndex;
 void createPipeline(Stage **head, Stage **tail);
 void processStage(Stage *stage);
-void fetch();
-void decode();
-//void execute(instr_contents *input);
+void fetch(Stage *stage);
+void decode(Stage *stage);
+void execute(Stage *stage);
+void moveDataToNextStage();
 
 #ifdef DEBUG
 void allotFuncToStage(Stage **head, Stage **tail);
