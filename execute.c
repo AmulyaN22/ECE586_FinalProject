@@ -1,4 +1,4 @@
-void execute(struct *instruction)
+void execute(struct *instruction) 
 {
 	switch(instruction->opcode)
 	{
@@ -55,7 +55,7 @@ void execute(struct *instruction)
         	break;
         	case 17:
         	printf("HALT instruction!\n");
-        	break;
+        	break; 
 	}
 }
 		

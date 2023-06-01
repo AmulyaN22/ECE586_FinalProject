@@ -8,6 +8,11 @@ void main()
 {
     r[2] = 3;
     r[3] = 1;
+    r[18] = 5;
+    r[6] = 7;
+    r[9] = 4;
+    r[7] = 5;
+    r[1] = 1;
     FILE* memimage;
     unsigned int instr;
     instr_contents pipe1_op;
@@ -27,6 +32,6 @@ void main()
 
     }
     else
-        printf("file can't be read!\n");
+        printf("file can't be read!\n"); 
     
 }
