@@ -12,7 +12,7 @@ def mem_img_reader(file_path):
 
 
 	
-mem_img_reader("/u/nik23/Desktop/ECE586_FinalProject/ece586 sample_memory_image.txt")
+mem_img_reader("/u/nik23/Desktop/ECE586_FinalProject/final_proj_trace.txt")
 
 while cfg.opcode != 17 :
 
@@ -22,7 +22,7 @@ while cfg.opcode != 17 :
     stages.execute(cfg.opcode,cfg.Rs,cfg.Rt,cfg.Rd,cfg.imm,cfg.r)
 
     stages.memory()
-    #print(hex(cfg.instr),'pc'+str(cfg.pc),cfg.opcode,cfg.Rs,cfg.Rt,cfg.Rd,cfg.imm,cfg.r)
+    print(hex(cfg.instr),'pc'+str(cfg.pc),cfg.opcode,cfg.Rs,cfg.Rt,cfg.Rd,cfg.imm,cfg.r,cfg.data_mem)
     #time.sleep(0.5)
     total_instr += 1
     print(total_instr)

@@ -59,11 +59,12 @@ def execute(opcode,Rs,Rt,Rd,imm,r):
 
 def memory():
 	if(cfg.mem_flag and cfg.opcode == 12):
-		mem_addr = (cfg.r[cfg.Rs] + ctypes.c_int16(cfg.imm).value)/4
+		mem_addr = int((cfg.r[cfg.Rs] + ctypes.c_int16(cfg.imm).value)/4)
 		cfg.r[cfg.Rt] = ctypes.c_int32(cfg.memory_img[mem_addr]).value
 		cfg.mem_flag = 0
 	if(cfg.mem_flag and cfg.opcode == 13):
-		mem_addr = (cfg.r[cfg.Rs] + ctypes.c_int16(cfg.imm).value)/4
+		mem_addr = int((cfg.r[cfg.Rs] + ctypes.c_int16(cfg.imm).value)/4)
+		print("addr = " + str(mem_addr))
 		cfg.memory_img[mem_addr] = cfg.r[cfg.Rt]
-		cfg.data_mem[4 * mem_addr] = cfg.memory_img[mem_addr]
+		cfg.data_mem[int(mem_addr * 4)] = cfg.memory_img[mem_addr]
 		cfg.mem_flag = 0
