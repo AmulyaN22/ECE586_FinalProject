@@ -4,7 +4,8 @@ Rt = 0
 Rd = 0
 imm = 0
 instr = 0
-
+mem_flag = 0
+data_mem = {}
 memory_img = []
 r = [0]*32
 pc = 0
