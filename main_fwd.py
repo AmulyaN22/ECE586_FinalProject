@@ -11,7 +11,9 @@ total_hazards = 0
 clk_cyc = 0
 stalls = []
 
-def without_forwarding():
+
+
+def with_forwarding():
     global total_stalls, total_hazards, stalls, single_stall, double_stalls, total_instr
 
     if total_instr < 1: 
@@ -26,19 +28,20 @@ def without_forwarding():
 
     if is_hazardous(curr_ins, prev_ins):
         print("yes!")
-        total_stalls += 2
-        double_stalls += 1
+        total_stalls += 1
+        double_stalls += 0
         total_hazards += 1
         stalls.append(curr_ins)
         return
 
-
+    '''
     if is_hazardous(curr_ins, prev_prev_ins):
         total_stalls += 1
         single_stall += 1
         total_hazards += 1
         stalls.append(curr_ins)
         return
+    '''
 
     cfg.branch_flag = 0
 
@@ -51,23 +54,30 @@ def is_hazardous(curr_ins, prev_ins):
     is_ins_Set_1 = ((curr_ins >> 26) & 63) in cfg.Ins_Set_1
     is_jb_based = ((prev_ins >> 26) & 63) in cfg.JB_based
     if is_ins_Set_2:
+        '''
         if is_r_type and (((curr_ins >> 21) & 31) == ((prev_ins >> 11) & 31) or ((curr_ins >> 16) & 31) == ((prev_ins >> 11) & 31)):
             return True
+        '''
 
         if is_i_type_ldw and (((curr_ins >> 21) & 31) == ((prev_ins >> 11) & 31) or ((curr_ins >> 16) & 31) == ((prev_ins >> 11) & 31)):
             return True
+        '''
         if is_jb_based and (((prev_ins >> 26) & 63) == cfg.BEQ) and (((curr_ins >> 21) & 31) == ((prev_ins >> 11) & 31) or ((curr_ins >> 16) & 31) == ((prev_ins >> 11) & 31)):
             return True
-        
+        '''
+
     if is_ins_Set_1:
+        '''
         if is_i_type and ((curr_ins >> 21) & 31) == ((prev_ins >> 16) & 31):
             return True
+        '''
 
         if is_i_type_ldw and ((curr_ins >> 21) & 31) == ((prev_ins >> 16) & 31):
             return True
-        
+        '''
         if is_jb_based and (((prev_ins >> 26) & 63) in (cfg.BZ, cfg.JR)) and (((curr_ins >> 21) & 31) == ((prev_ins >> 16) & 31)):
             return True
+        '''
 
     
     return False
@@ -87,7 +97,7 @@ while cfg.opcode != 17 :
     stages.fetch() 
 
     stages.decode(cfg.instr)
-    without_forwarding()
+    with_forwarding()
     stages.execute(cfg.opcode,cfg.Rs,cfg.Rt,cfg.Rd,cfg.imm,cfg.r)
 
     stages.memory()
@@ -95,7 +105,7 @@ while cfg.opcode != 17 :
     #time.sleep(0.5)
     total_instr += 1
     clk_cyc += 1
-    print(total_instr)
+    print(clk_cyc)
     #print(cfg.pc,cfg.r,cfg.data_mem)
     #print()
 #print((cfg.memory_img[cfg.pc] & 0xFC000000)>> 26)
@@ -105,6 +115,6 @@ while cfg.opcode != 17 :
 #signed_int = ctypes.c_int16(unsigned_int).value
 print(total_hazards)
 print(total_pen)
-
 print(clk_cyc +total_stalls+cfg.total_pen+4)
-print(total_stalls)
+print(single_stall, double_stalls)
+print(cfg.branch_taken)

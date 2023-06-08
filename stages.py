@@ -1,11 +1,19 @@
 import cfg
 import ctypes
-
-
+ 
 def fetch():
 	cfg.instr = cfg.memory_img[int(cfg.pc/4)]
 	if(cfg.opcode != 17):
 		cfg.pc+=4
+	elif(cfg.stall_pen != 0):
+		cfg.opcode = 18   
+		cfg.Rs     = 0
+		cfg.Rt     = 0
+		cfg.Rd     = 0
+		cfg.imm    = 0
+		cfg.instr  = 18 << 26
+		cfg.stall_pen -= 1
+
 
 
 def decode(instr):
@@ -17,7 +25,7 @@ def decode(instr):
 
 
 def execute(opcode,Rs,Rt,Rd,imm,r):
-	match opcode:
+	match (opcode):
 		case 0:
 			r[Rd] = r[Rs] + r[Rt]	
 		case 1:
@@ -48,23 +56,65 @@ def execute(opcode,Rs,Rt,Rd,imm,r):
 			cfg.mem_flag = 1
 		case 14:
 			if(r[Rs] == 0):
+				print('dfvrfrfrfsrfsrfsrfsfsefesfseffffffffffffffffffffffffff')
 				cfg.pc-=4
+				cfg.branch_flag = 1
+				cfg.temp_pc = cfg.pc - 4
 				cfg.pc = (cfg.pc + (4 * ctypes.c_int16(imm).value))	
+				cfg.stall_pen = 2
+				cfg.total_pen += 2
+				cfg.branch_taken +=1
 		case 15:
 			if(cfg.r[cfg.Rs] == cfg.r[cfg.Rt]):
+				print('dfvrfrfrfsrfsrfsrfsfsefesfseffffffffffffffffffffffffff')
 				cfg.pc-=4
+				cfg.branch_flag = 1
+				cfg.temp_pc = cfg.pc - 4
 				cfg.pc = (cfg.pc + (4 * ctypes.c_int16(imm).value))
+				cfg.stall_pen = 2
+				cfg.total_pen += 2
+				cfg.branch_taken +=1
 		case 16:
-			cfg.pc = r[Rs]						
+			print('dfvrfrfrfsrfsrfsrfsfsefesfseffffffffffffffffffffffffff')
+			cfg.pc = r[Rs]
+			cfg.branch_flag = 1
+			cfg.temp_pc = cfg.pc - 4
+			cfg.stall_pen = 2
+			cfg.total_pen += 2
+			cfg.branch_taken +=1
+		
+		case 18:
+			cfg.Rs     = 0
+			cfg.Rt     = 0
+			cfg.Rd     = 0
+			cfg.imm    = 0
+	
+	cfg.exe_reg[1] = cfg.exe_reg[0]
+	if opcode in cfg.R_based :
+		cfg.exe_reg[0] = Rd
+	elif opcode in cfg.I_based:
+		cfg.exe_reg[0] = Rt
+		
+
 
 def memory():
 	if(cfg.mem_flag and cfg.opcode == 12):
 		mem_addr = int((cfg.r[cfg.Rs] + ctypes.c_int16(cfg.imm).value)/4)
 		cfg.r[cfg.Rt] = ctypes.c_int32(cfg.memory_img[mem_addr]).value
 		cfg.mem_flag = 0
+		cfg.mem_reg = cfg.Rt
 	if(cfg.mem_flag and cfg.opcode == 13):
 		mem_addr = int((cfg.r[cfg.Rs] + ctypes.c_int16(cfg.imm).value)/4)
 		print("addr = " + str(mem_addr))
 		cfg.memory_img[mem_addr] = cfg.r[cfg.Rt]
 		cfg.data_mem[int(mem_addr * 4)] = cfg.memory_img[mem_addr]
 		cfg.mem_flag = 0
+
+def write_back(output):
+    global opcode,temp_reg,Rd,Rt
+    if(opcode in R_TYPE):
+        temp_reg[Rd] = output
+        reg_dict[Rd] = temp_reg[Rd]
+    elif(opcode in I_TYPE or opcode == LDW):
+        temp_reg[Rt] = output
+        reg_dict[Rt] = temp_reg[Rt]
