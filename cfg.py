@@ -45,3 +45,8 @@ Ins_Set_1 = [ADDI,SUBI,MULI,ORI,ANDI,XORI,LDW,BZ,JR]
 exe_reg = [0,0]
 mem_reg = 0
 wb_reg = 0
+
+arith_instr = 0
+logical_instr = 0
+mem_instr = 0
+cntrl_instr = 0
